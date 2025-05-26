@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Click and Drag</title>
+  <title>Horizontal Drag Scroll</title>
   <style>
     html {
       box-sizing: border-box;
@@ -25,15 +25,15 @@
     }
 
     .items {
-      height: 800px;
-      padding: 100px;
-      width: 100%;
-      border: 1px solid white;
-      overflow: hidden;
-      position: relative;
+      width: 80%;
+      height: 300px;
+      white-space: nowrap;
+      overflow-x: scroll;
+      overflow-y: hidden;
       background: rgba(255,255,255,0.1);
-      font-size: 0;
-      perspective: 500px;
+      border: 2px solid white;
+      cursor: grab;
+      padding: 20px;
     }
 
     .item {
@@ -45,13 +45,8 @@
       font-size: 30px;
       font-weight: bold;
       color: white;
-      position: absolute;
-      cursor: grab;
+      margin-right: 20px;
       user-select: none;
-    }
-
-    .item:active {
-      cursor: grabbing;
     }
 
     .item:nth-child(9n+1) { background: dodgerblue;}
@@ -76,53 +71,33 @@
   </div>
 
   <script>
-    const items = document.querySelectorAll('.item');
     const container = document.getElementById('container');
 
-    // Arrange cubes in a grid initially
-    const cols = 5;
-    const gap = 20;
-    const cubeSize = 100;
+    let isDown = false;
+    let startX;
+    let scrollLeft;
 
-    items.forEach((item, index) => {
-      const row = Math.floor(index / cols);
-      const col = index % cols;
-      item.style.left = `${col * (cubeSize + gap)}px`;
-      item.style.top = `${row * (cubeSize + gap)}px`;
+    container.addEventListener('mousedown', (e) => {
+      isDown = true;
+      container.classList.add('active');
+      startX = e.pageX - container.offsetLeft;
+      scrollLeft = container.scrollLeft;
     });
 
-    let selected = null;
-    let offsetX = 0, offsetY = 0;
-
-    items.forEach(item => {
-      item.addEventListener('mousedown', (e) => {
-        selected = item;
-        const rect = item.getBoundingClientRect();
-        offsetX = e.clientX - rect.left;
-        offsetY = e.clientY - rect.top;
-      });
+    container.addEventListener('mouseleave', () => {
+      isDown = false;
     });
 
-    document.addEventListener('mousemove', (e) => {
-      if (selected) {
-        const containerRect = container.getBoundingClientRect();
-        let x = e.clientX - containerRect.left - offsetX;
-        let y = e.clientY - containerRect.top - offsetY;
-
-        // Boundary constraints
-        const maxX = container.clientWidth - selected.clientWidth;
-        const maxY = container.clientHeight - selected.clientHeight;
-
-        x = Math.max(0, Math.min(x, maxX));
-        y = Math.max(0, Math.min(y, maxY));
-
-        selected.style.left = `${x}px`;
-        selected.style.top = `${y}px`;
-      }
+    container.addEventListener('mouseup', () => {
+      isDown = false;
     });
 
-    document.addEventListener('mouseup', () => {
-      selected = null;
+    container.addEventListener('mousemove', (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - container.offsetLeft;
+      const walk = (x - startX) * 2; // scroll-fast multiplier
+      container.scrollLeft = scrollLeft - walk;
     });
   </script>
 </body>
