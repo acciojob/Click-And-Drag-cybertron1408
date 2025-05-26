@@ -3,40 +3,127 @@
 <head>
   <meta charset="UTF-8">
   <title>Click and Drag</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    html {
+      box-sizing: border-box;
+      background: url('https://source.unsplash.com/NFs6dRTBgaM/2000x2000') fixed;
+      background-size: cover;
+    }
+
+    *, *:before, *:after {
+      box-sizing: inherit;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: sans-serif;
+      font-size: 20px;
+      margin: 0;
+    }
+
+    .items {
+      height: 800px;
+      padding: 100px;
+      width: 100%;
+      border: 1px solid white;
+      overflow: hidden;
+      position: relative;
+      background: rgba(255,255,255,0.1);
+      font-size: 0;
+      perspective: 500px;
+    }
+
+    .item {
+      width: 100px;
+      height: 100px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      font-weight: bold;
+      color: white;
+      position: absolute;
+      cursor: grab;
+      user-select: none;
+    }
+
+    .item:active {
+      cursor: grabbing;
+    }
+
+    .item:nth-child(9n+1) { background: dodgerblue;}
+    .item:nth-child(9n+2) { background: goldenrod;}
+    .item:nth-child(9n+3) { background: paleturquoise;}
+    .item:nth-child(9n+4) { background: gold;}
+    .item:nth-child(9n+5) { background: cadetblue;}
+    .item:nth-child(9n+6) { background: tomato;}
+    .item:nth-child(9n+7) { background: lightcoral;}
+    .item:nth-child(9n+8) { background: darkslateblue;}
+    .item:nth-child(9n+9) { background: rebeccapurple;}
+  </style>
 </head>
 <body>
-  <div class="items">
-    <div class="item item1">01</div>
-    <div class="item item2">02</div>
-    <div class="item item3">03</div>
-    <div class="item item4">04</div>
-    <div class="item item5">05</div>
-    <div class="item item6">06</div>
-    <div class="item item7">07</div>
-    <div class="item item8">08</div>
-    <div class="item item9">09</div>
-    <div class="item item10">10</div>
-    <div class="item item11">11</div>
-    <div class="item item12">12</div>
-    <div class="item item13">13</div>
-    <div class="item item14">14</div>
-    <div class="item item15">15</div>
-    <div class="item item16">16</div>
-    <div class="item item17">17</div>
-    <div class="item item18">18</div>
-    <div class="item item19">19</div>
-    <div class="item item20">20</div>
-    <div class="item item21">21</div>
-    <div class="item item22">22</div>
-    <div class="item item23">23</div>
-    <div class="item item24">24</div>
-    <div class="item item25">25</div>
+  <div class="items" id="container">
+    <!-- 25 draggable cubes -->
+    <div class="item">01</div><div class="item">02</div><div class="item">03</div><div class="item">04</div><div class="item">05</div>
+    <div class="item">06</div><div class="item">07</div><div class="item">08</div><div class="item">09</div><div class="item">10</div>
+    <div class="item">11</div><div class="item">12</div><div class="item">13</div><div class="item">14</div><div class="item">15</div>
+    <div class="item">16</div><div class="item">17</div><div class="item">18</div><div class="item">19</div><div class="item">20</div>
+    <div class="item">21</div><div class="item">22</div><div class="item">23</div><div class="item">24</div><div class="item">25</div>
   </div>
 
-<script>
-//Your code goes here 
-</script>
+  <script>
+    const items = document.querySelectorAll('.item');
+    const container = document.getElementById('container');
 
-  </body>
+    // Arrange cubes in a grid initially
+    const cols = 5;
+    const gap = 20;
+    const cubeSize = 100;
+
+    items.forEach((item, index) => {
+      const row = Math.floor(index / cols);
+      const col = index % cols;
+      item.style.left = `${col * (cubeSize + gap)}px`;
+      item.style.top = `${row * (cubeSize + gap)}px`;
+    });
+
+    let selected = null;
+    let offsetX = 0, offsetY = 0;
+
+    items.forEach(item => {
+      item.addEventListener('mousedown', (e) => {
+        selected = item;
+        const rect = item.getBoundingClientRect();
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
+      });
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (selected) {
+        const containerRect = container.getBoundingClientRect();
+        let x = e.clientX - containerRect.left - offsetX;
+        let y = e.clientY - containerRect.top - offsetY;
+
+        // Boundary constraints
+        const maxX = container.clientWidth - selected.clientWidth;
+        const maxY = container.clientHeight - selected.clientHeight;
+
+        x = Math.max(0, Math.min(x, maxX));
+        y = Math.max(0, Math.min(y, maxY));
+
+        selected.style.left = `${x}px`;
+        selected.style.top = `${y}px`;
+      }
+    });
+
+    document.addEventListener('mouseup', () => {
+      selected = null;
+    });
+  </script>
+</body>
 </html>
